@@ -101,11 +101,17 @@ def shortest_path(source, target):
 
     # Create Initial Node   
     initial_node = Node(state=source, parent=None, action=None)
+
     frontier = QueueFrontier()
+
     frontier.add(initial_node)
 
+    explored = set()
+
     while(frontier.empty != True):
+
         current_node = frontier.remove()
+
         if current_node.state == target:
             actions = []
             while current_node.parent is not None:
@@ -114,11 +120,14 @@ def shortest_path(source, target):
             actions.reverse()
             return actions
                 # voltar acessando parent e salvar o caminho, para depois devolver o caminho reverso
-        for movie_id, person_id in neighbors_for_person(current_node.state):
-            frontier.add(Node(state=person_id, parent=current_node, action=movie_id))
-
+                
+        explored.add(current_node.state)
         
-    
+        for movie_id, person_id in neighbors_for_person(current_node.state):
+            if not frontier.contains_state(person_id) and person_id not in explored:
+                frontier.add(Node(state=person_id, parent=current_node, action=movie_id))
+
+         
     return None
 
 def person_id_for_name(name):
