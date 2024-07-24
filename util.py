@@ -3,6 +3,9 @@ class Node():
         self.state = state
         self.parent = parent
         self.action = action
+        # action is the action that got us to this state and is used to reconstruct the path
+
+# The state of the node represents the person_id of the person in the database
 
 
 class StackFrontier():

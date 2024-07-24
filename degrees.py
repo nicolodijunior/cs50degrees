@@ -21,7 +21,6 @@ def load_data(directory):
     with open(f"{directory}/people.csv", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            print(row)
             people[row["id"]] = {
                 "name": row["name"],
                 "birth": row["birth"],
@@ -31,7 +30,6 @@ def load_data(directory):
                 names[row["name"].lower()] = {row["id"]}
             else:
                 names[row["name"].lower()].add(row["id"])
-    
 
     # Load movies
     with open(f"{directory}/movies.csv", encoding="utf-8") as f:
@@ -43,6 +41,7 @@ def load_data(directory):
                 "stars": set()
             }
 
+    # print("Movies dictionary: ", movies)
 
     # Load stars
     with open(f"{directory}/stars.csv", encoding="utf-8") as f:
@@ -68,6 +67,8 @@ def main():
 
 
     source = person_id_for_name(input("Name: "))
+    # cria nodo source
+    print("Source: ", source)
     if source is None:
         sys.exit("Person not found.")
     target = person_id_for_name(input("Name: "))
@@ -96,10 +97,29 @@ def shortest_path(source, target):
 
     If no possible path, returns None.
     """
+    # Receives the source and target person_id
 
-    # TODO
-    raise NotImplementedError
+    # Create Initial Node   
+    initial_node = Node(state=source, parent=None, action=None)
+    frontier = QueueFrontier()
+    frontier.add(initial_node)
 
+    while(frontier.empty != True):
+        current_node = frontier.remove()
+        if current_node.state == target:
+            actions = []
+            while current_node.parent is not None:
+                actions.append((current_node.action, current_node.state))
+                current_node = current_node.parent
+            actions.reverse()
+            return actions
+                # voltar acessando parent e salvar o caminho, para depois devolver o caminho reverso
+        for movie_id, person_id in neighbors_for_person(current_node.state):
+            frontier.add(Node(state=person_id, parent=current_node, action=movie_id))
+
+        
+    
+    return None
 
 def person_id_for_name(name):
     """
@@ -129,7 +149,7 @@ def person_id_for_name(name):
 
 def neighbors_for_person(person_id):
     """
-    Returns (movie_id, person_id) pairs for people
+    Returns pairs for people
     who starred with a given person.
     """
     movie_ids = people[person_id]["movies"]
@@ -138,7 +158,7 @@ def neighbors_for_person(person_id):
         for person_id in movies[movie_id]["stars"]:
             neighbors.add((movie_id, person_id))
     return neighbors
-
+    ## this methods returns the neighbors of a person, i.e. the people who starred with the person in a movie
 
 if __name__ == "__main__":
     main()
